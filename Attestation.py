@@ -3,7 +3,7 @@ from pprint import pprint
 from typing import Iterable, Dict, Optional, List, Any
 
 
-class NoProductionError(Exception):
+class OutOfResourceError(Exception):
     def __init__(self: Any, message: str) -> None:
         super().__init__(message)
 
@@ -12,7 +12,7 @@ def get_robot(item: Dict) -> Optional[int]:
     return item.get("robot")
 
 
-def estimate(mydict: Iterable) -> List:
+def calculate(mydict: Iterable) -> List:
     # группируем исходные данные по роботам
     robot_resource = itertools.groupby(mydict, get_robot)
     water = None
@@ -38,7 +38,7 @@ def estimate(mydict: Iterable) -> List:
         sugar = item.get("сахар")
         other_resources = item.get("вкусовые добавки")
         if water is None or sugar is None:
-            raise NoProductionError("Ошибка")
+            raise OutOfResourceError("Ошибка")
         # выясняем сколько возможно сделать бутылок с газировкой
         max_bottle_available = min(int(water.get("limit") // water.get("portion")),
                                    int(sugar.get("limit") // sugar.get("portion")))
@@ -74,16 +74,16 @@ def estimate(mydict: Iterable) -> List:
                 )
     # если не удалось составить ни одной инструкции - говорим что ресурсы распределены неверно
     if overall_instruction == []:
-        raise NoProductionError("Ошибка")
+        raise OutOfResourceError("Ошибка")
 
     return overall_instruction
 
 
 try:
-    pprint(estimate([
+    pprint(calculate([
         {
             "robot": 1,
-            "resource": "сахар",
+            "resource": "вода",
             "limit": 2,
             "portion": 1
         },
@@ -94,5 +94,5 @@ try:
             "portion": 1
         }
     ]))
-except NoProductionError:
+except OutOfResourceError:
     print("OutOfResourceError")
