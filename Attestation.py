@@ -32,13 +32,16 @@ def calculate(mydict: Iterable) -> List:
             else:
                 robot_manager[key]["вкусовые добавки"].append(resource)  # вкусовые добавки - в отдельный список, для
                 # упорядочивания
-
+    list_robot_available = []
     for key, item in robot_manager.items():
         water = item.get("вода")
         sugar = item.get("сахар")
         other_resources = item.get("вкусовые добавки")
         if water is None or sugar is None:
-            raise OutOfResourceError("Ошибка")
+            list_robot_available.append(0)
+            continue
+        else:
+            list_robot_available.append(1)
         # выясняем сколько возможно сделать бутылок с газировкой
         max_bottle_available = min(int(water.get("limit") // water.get("portion")),
                                    int(sugar.get("limit") // sugar.get("portion")))
@@ -72,6 +75,11 @@ def calculate(mydict: Iterable) -> List:
                         "robot": key
                     }
                 )
+    temp = 0
+    for i in list_robot_available:
+        temp += i
+    if temp == 0:
+        raise OutOfResourceError("Ошибка")
     # если не удалось составить ни одной инструкции - говорим что ресурсы распределены неверно
     if overall_instruction == []:
         raise OutOfResourceError("Ошибка")
@@ -83,7 +91,7 @@ try:
     pprint(calculate([
         {
             "robot": 1,
-            "resource": "вода",
+            "resource": "сахар",
             "limit": 2,
             "portion": 1
         },
